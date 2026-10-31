@@ -75,8 +75,8 @@ jupyter notebook notebooks/AI4I_pipeline.ipynb
 | Report and presentation | `REPORT.md` / `REPORT.pdf`, figures in `outputs/figures/` |
 
 ## Authors
-Lakshay Vardhan - ME24B1001
-Praneeth Bollu - ME24B1005
+Lakshay Vardhan - ME24B1001 |
+Praneeth Bollu - ME24B1005 |
 Chanakya Swaraj - EC24B1113
 
 ## Reference
