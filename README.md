@@ -74,6 +74,11 @@ jupyter notebook notebooks/AI4I_pipeline.ipynb
 | Reproducibility and code quality | This README, `requirements.txt`, seed 42, `run_pipeline.py` runs end to end, documented modules |
 | Report and presentation | `REPORT.md` / `REPORT.pdf`, figures in `outputs/figures/` |
 
+##Authors
+Lakshay Vardhan - ME24B1001
+Praneeth Bollu - ME24B1005
+Chanakya Swaraj - EC24B1113
+
 ## Reference
 
 S. Matzka, "Explainable Artificial Intelligence for Predictive Maintenance Applications", *Third International Conference on Artificial Intelligence for Industries (AI4I 2020)*.
