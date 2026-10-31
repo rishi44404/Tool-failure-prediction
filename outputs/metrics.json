@@ -1,0 +1,372 @@
+{
+  "data_quality": {
+    "rows": 10000,
+    "columns": 14,
+    "dtypes": {
+      "udi": "int64",
+      "product_id": "str",
+      "type": "str",
+      "air_temp_k": "float64",
+      "process_temp_k": "float64",
+      "rpm": "int64",
+      "torque_nm": "float64",
+      "tool_wear_min": "int64",
+      "machine_failure": "int64",
+      "TWF": "int64",
+      "HDF": "int64",
+      "PWF": "int64",
+      "OSF": "int64",
+      "RNF": "int64"
+    },
+    "missing_values": {},
+    "duplicate_rows_ignoring_id": 0,
+    "duplicate_product_ids": 0,
+    "failure_rate": 0.0339,
+    "failures": 339,
+    "mode_counts": {
+      "TWF": 46,
+      "HDF": 115,
+      "PWF": 95,
+      "OSF": 98,
+      "RNF": 19
+    },
+    "rows_with_multiple_modes": 24,
+    "failure_without_mode": 9,
+    "mode_without_failure": 18,
+    "mode_without_failure_by_mode": {
+      "TWF": 0,
+      "HDF": 0,
+      "PWF": 0,
+      "OSF": 0,
+      "RNF": 18
+    },
+    "type_counts": {
+      "L": 6000,
+      "M": 2997,
+      "H": 1003
+    },
+    "product_id_letter_matches_type": true
+  },
+  "cleaning_log": [
+    "Renamed columns to snake_case with units kept (e.g. 'Torque [Nm]' -> torque_nm).",
+    "Type -> ordered category L < M < H (low, medium, high product quality).",
+    "No missing values, so no imputation is needed. A median imputer still sits inside the model pipeline so it would be fitted on training data only if new data had gaps.",
+    "No duplicate rows (ignoring the ID columns) and no repeated product IDs.",
+    "udi and product_id are identifiers, not measurements; they are kept for tracing rows but never used as features (product_id's first letter only repeats Type).",
+    "Label check: 9 failures have no mode flagged (labelled 'unknown'), and 18 rows have a mode flagged but machine_failure = 0. machine_failure is kept as the ground truth because it records whether the machine actually stopped.",
+    "TWF/HDF/PWF/OSF/RNF describe HOW a failure happened, so they are only known after the event. They are excluded from the features (using them would be target leakage) and used only for error analysis.",
+    "IQR outliers: rpm: 418, torque_nm: 69. They are physically possible readings and they are where failures concentrate, so they are kept; removing them would delete the signal."
+  ],
+  "split": {
+    "train": 8000,
+    "test": 2000,
+    "train_failures": 271,
+    "test_failures": 68
+  },
+  "ablation_cv_pr_auc": {
+    "Logistic regression": {
+      "raw": 0.4323,
+      "engineered": 0.4552
+    },
+    "Random forest": {
+      "raw": 0.7464,
+      "engineered": 0.8914
+    },
+    "Gradient boosting": {
+      "raw": 0.8018,
+      "engineered": 0.8852
+    }
+  },
+  "tuning": {
+    "Logistic regression": {
+      "cv_pr_auc": 0.4859,
+      "best_params": {
+        "C": 0.1
+      }
+    },
+    "Random forest": {
+      "cv_pr_auc": 0.897,
+      "best_params": {
+        "max_depth": 16,
+        "max_features": 0.5,
+        "min_samples_leaf": 3
+      }
+    },
+    "Gradient boosting": {
+      "cv_pr_auc": 0.8927,
+      "best_params": {
+        "l2_regularization": 1.0,
+        "learning_rate": 0.03,
+        "max_iter": 200,
+        "max_leaf_nodes": 15
+      }
+    }
+  },
+  "thresholds": {
+    "Logistic regression": {
+      "threshold": 0.5148,
+      "oof_cost_rs": 4578000,
+      "oof_cost_at_0.5_rs": 4612000,
+      "oof_recall": 0.8303,
+      "oof_precision": 0.165
+    },
+    "Random forest": {
+      "threshold": 0.0685,
+      "oof_cost_rs": 1714000,
+      "oof_cost_at_0.5_rs": 2138000,
+      "oof_recall": 0.952,
+      "oof_precision": 0.3266
+    },
+    "Gradient boosting": {
+      "threshold": 0.0158,
+      "oof_cost_rs": 1680000,
+      "oof_cost_at_0.5_rs": 2776000,
+      "oof_recall": 0.9446,
+      "oof_precision": 0.3551
+    }
+  },
+  "best_model": "Gradient boosting",
+  "test_results": {
+    "Never alarm (majority class)": {
+      "threshold": 0.5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "accuracy": 0.966,
+      "pr_auc": NaN,
+      "roc_auc": NaN,
+      "tp": 0.0,
+      "fp": 0.0,
+      "fn": 68.0,
+      "tn": 1932.0,
+      "cost_rs": 3400000.0
+    },
+    "Replace tool at 200 min wear": {
+      "threshold": 0.5,
+      "precision": 0.1486,
+      "recall": 0.3824,
+      "f1": 0.214,
+      "accuracy": 0.9045,
+      "pr_auc": NaN,
+      "roc_auc": NaN,
+      "tp": 26.0,
+      "fp": 149.0,
+      "fn": 42.0,
+      "tn": 1783.0,
+      "cost_rs": 2398000.0
+    },
+    "Logistic regression": {
+      "threshold": 0.5148,
+      "precision": 0.1756,
+      "recall": 0.8676,
+      "f1": 0.2921,
+      "accuracy": 0.857,
+      "pr_auc": 0.44,
+      "roc_auc": 0.931,
+      "tp": 59.0,
+      "fp": 277.0,
+      "fn": 9.0,
+      "tn": 1655.0,
+      "cost_rs": 1004000.0
+    },
+    "Logistic regression @ 0.5": {
+      "threshold": 0.5,
+      "precision": 0.17,
+      "recall": 0.8824,
+      "f1": 0.285,
+      "accuracy": 0.8495,
+      "pr_auc": 0.44,
+      "roc_auc": 0.931,
+      "tp": 60.0,
+      "fp": 293.0,
+      "fn": 8.0,
+      "tn": 1639.0,
+      "cost_rs": 986000.0
+    },
+    "Random forest": {
+      "threshold": 0.0685,
+      "precision": 0.3231,
+      "recall": 0.9265,
+      "f1": 0.4791,
+      "accuracy": 0.9315,
+      "pr_auc": 0.891,
+      "roc_auc": 0.9787,
+      "tp": 63.0,
+      "fp": 132.0,
+      "fn": 5.0,
+      "tn": 1800.0,
+      "cost_rs": 514000.0
+    },
+    "Random forest @ 0.5": {
+      "threshold": 0.5,
+      "precision": 0.9333,
+      "recall": 0.8235,
+      "f1": 0.875,
+      "accuracy": 0.992,
+      "pr_auc": 0.891,
+      "roc_auc": 0.9787,
+      "tp": 56.0,
+      "fp": 4.0,
+      "fn": 12.0,
+      "tn": 1928.0,
+      "cost_rs": 608000.0
+    },
+    "Gradient boosting": {
+      "threshold": 0.0158,
+      "precision": 0.3514,
+      "recall": 0.9559,
+      "f1": 0.5138,
+      "accuracy": 0.9385,
+      "pr_auc": 0.9149,
+      "roc_auc": 0.9872,
+      "tp": 65.0,
+      "fp": 120.0,
+      "fn": 3.0,
+      "tn": 1812.0,
+      "cost_rs": 390000.0
+    },
+    "Gradient boosting @ 0.5": {
+      "threshold": 0.5,
+      "precision": 0.9655,
+      "recall": 0.8235,
+      "f1": 0.8889,
+      "accuracy": 0.993,
+      "pr_auc": 0.9149,
+      "roc_auc": 0.9872,
+      "tp": 56.0,
+      "fp": 2.0,
+      "fn": 12.0,
+      "tn": 1930.0,
+      "cost_rs": 604000.0
+    }
+  },
+  "bootstrap_ci_best_model": {
+    "recall": {
+      "estimate": 0.9559,
+      "ci_low_2.5%": 0.8999,
+      "ci_high_97.5%": 1.0
+    },
+    "precision": {
+      "estimate": 0.3514,
+      "ci_low_2.5%": 0.2812,
+      "ci_high_97.5%": 0.4211
+    },
+    "cost_rs": {
+      "estimate": 390000.0,
+      "ci_low_2.5%": 236000.0,
+      "ci_high_97.5%": 578000.0
+    }
+  },
+  "recall_by_failure_mode": {
+    "Heat dissipation failure (HDF)": {
+      "failures": 28,
+      "caught": 28,
+      "recall": 1.0
+    },
+    "Overstrain failure (OSF)": {
+      "failures": 15,
+      "caught": 15,
+      "recall": 1.0
+    },
+    "Power failure (PWF)": {
+      "failures": 12,
+      "caught": 12,
+      "recall": 1.0
+    },
+    "Tool wear failure (TWF)": {
+      "failures": 9,
+      "caught": 7,
+      "recall": 0.778
+    },
+    "Several modes at once (multiple)": {
+      "failures": 2,
+      "caught": 2,
+      "recall": 1.0
+    },
+    "No mode recorded (unknown)": {
+      "failures": 2,
+      "caught": 1,
+      "recall": 0.5
+    }
+  },
+  "permutation_importance": {
+    "rpm": {
+      "mean": 0.4629,
+      "std": 0.031
+    },
+    "temp_diff_k": {
+      "mean": 0.3981,
+      "std": 0.0369
+    },
+    "strain_min_nm": {
+      "mean": 0.1568,
+      "std": 0.0097
+    },
+    "power_w": {
+      "mean": 0.138,
+      "std": 0.0081
+    },
+    "tool_wear_min": {
+      "mean": 0.0592,
+      "std": 0.0037
+    },
+    "type": {
+      "mean": 0.0296,
+      "std": 0.0136
+    },
+    "torque_nm": {
+      "mean": 0.0288,
+      "std": 0.0076
+    },
+    "process_temp_k": {
+      "mean": 0.0014,
+      "std": 0.0016
+    },
+    "air_temp_k": {
+      "mean": -0.0013,
+      "std": 0.0019
+    }
+  },
+  "cost_sensitivity": [
+    {
+      "cost_ratio_fn_to_fp": "5:1",
+      "threshold": 0.3241,
+      "model_cost_rs": 106000,
+      "Never alarm (majority class) cost_rs": 680000,
+      "Replace tool at 200 min wear cost_rs": 718000
+    },
+    {
+      "cost_ratio_fn_to_fp": "10:1",
+      "threshold": 0.1915,
+      "model_cost_rs": 218000,
+      "Never alarm (majority class) cost_rs": 1360000,
+      "Replace tool at 200 min wear cost_rs": 1138000
+    },
+    {
+      "cost_ratio_fn_to_fp": "25:1",
+      "threshold": 0.0158,
+      "model_cost_rs": 390000,
+      "Never alarm (majority class) cost_rs": 3400000,
+      "Replace tool at 200 min wear cost_rs": 2398000
+    },
+    {
+      "cost_ratio_fn_to_fp": "50:1",
+      "threshold": 0.0083,
+      "model_cost_rs": 638000,
+      "Never alarm (majority class) cost_rs": 6800000,
+      "Replace tool at 200 min wear cost_rs": 4498000
+    },
+    {
+      "cost_ratio_fn_to_fp": "100:1",
+      "threshold": 0.0083,
+      "model_cost_rs": 938000,
+      "Never alarm (majority class) cost_rs": 13600000,
+      "Replace tool at 200 min wear cost_rs": 8698000
+    }
+  ],
+  "assumed_costs_rs": {
+    "missed_failure": 50000,
+    "false_alarm": 2000
+  },
+  "seed": 42
+}

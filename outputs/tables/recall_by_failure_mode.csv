@@ -1,0 +1,7 @@
+,failures,caught,recall
+Heat dissipation failure (HDF),28,28,1.0
+Overstrain failure (OSF),15,15,1.0
+Power failure (PWF),12,12,1.0
+Tool wear failure (TWF),9,7,0.7777777777777778
+Several modes at once (multiple),2,2,1.0
+No mode recorded (unknown),2,1,0.5

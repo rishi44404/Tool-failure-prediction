@@ -1,0 +1,6 @@
+feature,lower_fence,upper_fence,n_outliers,failure_rate_in_outliers,failure_rate_elsewhere
+air_temp_k,293.5,306.3,0,,0.034
+process_temp_k,305.35,314.55,0,,0.034
+rpm,1139.5,1895.5,418,0.084,0.032
+torque_nm,12.8,67.2,69,0.899,0.028
+tool_wear_min,-110.5,325.5,0,,0.034
